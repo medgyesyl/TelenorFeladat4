@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p id="index_frissült"></p> <!-- id létrehozás: mikor frissül az oldal -->
+<p id="index_címek"></p> <!-- id létrehozás: cikkek címeinke kiírása -->
+
+<script>
+var xhttp = new XMLHttpRequest(); 
+xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) { 
+        showNames(xhttp.responseXML); /*írja ki a cikkek címeit*/
+        showBuildDate(xhttp.responseXML); /*írja ki, hogy az oldal mikor frissült utoljára*/
+    }
+};
+xhttp.open("GET", "https://index.hu/24ora/rss/", true); 
+xhttp.send(); 
+
+/*cikkek címeinek kiírása*/
+
+function showNames(xml) {
+    var txt = "";
+    path = "/rss/channel/item/title" /* cikkek elérési útvonala*/
+    if (xml.evaluate) {
+        var nodes = xml.evaluate(path, xml, null, XPathResult.ANY_TYPE, null); 
+        var result = nodes.iterateNext(); /*menjen végig az összes értéken*/
+        while (result) {
+            txt += result.childNodes[0].nodeValue + "<br>"; /*0. értéktől írja ki a címeket br taggel elválasztva*/
+            result = nodes.iterateNext(); /*előző sorban megadott nulladik értéktől kezdve iteráljon*/
+        }
+     }
+    document.getElementById("index_címek").innerHTML = txt; /*eredmény kiírása*/
+}
+
+/*Utolsó frissités dátumának kiírása*/
+
+function showBuildDate(xml) {
+    path = "/rss/channel/lastBuildDate" /* utolsó frissítés elérési útvonala*/
+    if (xml.evaluate) {
+        var nodes = xml.evaluate(path, xml, null, XPathResult.ANY_TYPE, null);
+        var txt = nodes.iterateNext().childNodes[0].nodeValue; /*0. értéket írja ki*/
+     }
+    document.getElementById("index_frissült").innerHTML = txt; /*eredmény kiírása*/
+}
+</script>
+
+</body>
+</html>
